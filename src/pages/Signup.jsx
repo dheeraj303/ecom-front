@@ -2,7 +2,54 @@ import { Link } from 'react-router-dom';
 import { RiGoogleFill } from 'react-icons/ri';
 import { Button } from '@material-tailwind/react';
 
+import {signup} from '../services/authService'
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+
 function SignupPage() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleInputChange = (e) => {
+    console.log("aaya");
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check for password match
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      // Replace with your API endpoint
+      const response = await signup(formData);
+
+      console.log("Signup successful:", response.data);
+      navigate('/dashboard');
+      alert("Account created successfully!");
+    } catch (error) {
+      console.error("Error during signup:", error);
+      alert("Failed to create account. Please try again.");
+    }
+  };
+
+
   return (
     <div className="flex min-h-screen px-4 md:px-5 lg:px-10 xl:px-24">
       {/* Left Column */}
@@ -90,33 +137,63 @@ function SignupPage() {
               </div>
             </div>
 
-            <form className="mt-6 space-y-4">
+             <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div>
                 <input
                   placeholder="Full Name"
-                  className="bg-white text-black w-full p-2 border"
+                  className="bg-white text-black"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                   name="fullName"
                 />
               </div>
               <div>
                 <input
                   type="email"
                   placeholder="Enter Email"
-                  className="bg-white text-black w-full p-2 border"
+                  className="bg-white text-black"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                 name="email"
                 />
               </div>
               <div className="relative">
                 <input
-                  type="password"
-                  placeholder="Password"
-                  className="bg-white text-black w-full p-2 border"
+                   type={showPassword ? "text" : "password"}
+                   placeholder="Password"
+                   className="bg-white text-black"
+                   name="password"
+                   value={formData.password}
+                   onChange={handleInputChange}
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  
+                </Button>
               </div>
               <div className="relative">
                 <input
-                  type="password"
-                  className="bg-white text-black w-full p-2 border"
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="bg-white text-black"
                   placeholder="Confirm Password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                
+                </Button>
               </div>
               <Button
                 className="w-full bg-green-500 hover:bg-green-600 h-11"
